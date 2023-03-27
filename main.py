@@ -7,6 +7,10 @@ A simple Whack a Mole game written with PyGame
 :copyright: (c) 2018 Matt Cowley (IPv4)
 """
 
-from whackamole import Game
+from filegame import Game
 
-theGame = Game(timer=60)
+g = Game()
+
+while g.running:
+    g.curr_menu.display_menu()
+    g.game_loop()

@@ -5,9 +5,10 @@ class GameConstants:
     Constants used for rendering of main game
     """
 
-    GAMEWIDTH       = 500
-    GAMEHEIGHT      = 750
+    GAMEWIDTH       = 810
+    GAMEHEIGHT      = 810
     GAMEMAXFPS      = 60
+    BACKGROUNWIDTH  = 1440
 
 
 class LevelConstants:
