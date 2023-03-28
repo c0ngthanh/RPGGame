@@ -3,6 +3,14 @@ from .spritesheet import Spritesheet
 from .constants import GameConstants
 class Player(pygame.sprite.Sprite):
     def __init__(self):
+        # Stats 
+        self.HP = 10
+        self.DEF = 3
+        self.DMG = 5
+        self.SPD = 1
+        self.EXP = 0
+        self.LEVEL = 0
+        # Animation
         pygame.sprite.Sprite.__init__(self)
         self.LEFT_KEY, self.RIGHT_KEY, self.FACING_LEFT,self.ATK,self.JUMP = False, False, False,False,False
         self.on_ground = False
@@ -16,30 +24,38 @@ class Player(pygame.sprite.Sprite):
         self.last_updated = 0
         self.state = 'idle'
         self.current_image = self.idle_frames_right[0]
+        self.action_cooldown =1
     # Draw on surface 
     def draw(self, display):
         display.blit(self.current_image, self.rect)
     # Update state, animation, position of player 
-    def update(self, dt, tiles):
+    def update(self, dt, tiles,surface):
         self.horizontal_movement(dt)
         self.checkCollisionsx(tiles)
         self.vertical_movement(dt)
         self.checkCollisionsy(tiles)
-        self.checkATK()
+        self.checkATK(surface)
     #Draw ATK state
-    def checkATK(self):
+    def checkATK(self,surface):
         if self.ATK:
             self.state = 'attack'
             self.animate()
+            self.action_cooldown +=3
+            action_wait_time = 100
+            if self.action_cooldown > action_wait_time:
+                if pygame.Rect.colliderect(self.rect,surface):
+                    self.HP-=1
+                    print(self.HP)
+                    self.action_cooldown =0
     # Di chuyen theo phuong ngang, co ma sat, animation
     def horizontal_movement(self,dt):
         self.acceleration.x = 0
         if self.LEFT_KEY:
-            self.acceleration.x -= .3
+            self.acceleration.x -= .2
             self.state = 'moving left'
             self.animate()
         elif self.RIGHT_KEY:
-            self.acceleration.x += .3
+            self.acceleration.x += .2
             self.state = 'moving right'
             self.animate()
         self.acceleration.x += self.velocity.x * self.friction
@@ -137,7 +153,7 @@ class Player(pygame.sprite.Sprite):
                     self.current_image = self.running_frames_right[self.current_frame]
         elif self.state == 'attack':
             # print(self.current_frame)
-            if now - self.last_updated > 10:
+            if now - self.last_updated > 30:
                 self.last_updated = now
                 self.current_frame = (self.current_frame + 1) % len(self.attacking_frames_left)
                 if self.state == 'attack' and self.FACING_LEFT:
@@ -187,7 +203,8 @@ class Player(pygame.sprite.Sprite):
             self.attacking_frames_left.append( pygame.transform.flip(frame,True, False) )
         self.jumping_frames_left = []
         for frame in self.jumping_frames_right:
-            self.jumping_frames_left.append( pygame.transform.flip(frame,True, False) )
+            self.jumping_frames_left.append( pygame.transform.flip(frame,True, False))
+
         
 
 

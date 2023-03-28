@@ -2,11 +2,16 @@ import pygame
 from .menu import *
 from .spritesheet import Spritesheet
 from .player1 import Player
+from .player2 import *
 from .constants import GameConstants
 # from .spritesheet import Spritesheet
 from .camera import Camera
 from .tiles import *
 clock = pygame.time.Clock() 
+# delay_time = 300
+pygame.mixer.init()
+pygame.mixer.music.load('assets/music.mp3')
+pygame.mixer.music.set_volume(0.2)
 class Game():
     def __init__(self):
         pygame.init()
@@ -22,12 +27,20 @@ class Game():
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
         self.fps = 60
-        self.player = Player()
+        self.player1 = Player()
+        self.player2 = Player2()
+        self.player = self.player1
         self.camera = Camera(self.player)
         self.spritesheet = Spritesheet('assets/map/spritesheet.png',1)
         self.map = TileMap('assets/map/map.csv', self.spritesheet )
+        self.monster = pygame.image.load('assets/zombie/png/male/Attack (1).png')
+        self.monster= pygame.transform.scale(self.monster,(50,50))
+        self.switch = 1
+        self.delay =0
+        # self.fireball = FireBall()
     def game_loop(self):
         # i=1 ####
+        pygame.mixer.music.play(-1)
         dt = clock.tick(60) * .001 * self.fps
         while self.playing:
             # i=(i+1)%len(self.knight1)
@@ -35,17 +48,35 @@ class Game():
             if self.START_KEY:
                 self.playing = False
             # UPDATE SPRITE,CAMERA
-            self.player.update(dt,self.map.tiles)
+            # self.delay+=3
+            # if delay > delay_time:
+            # print(self.switch)
+            # print
+            if self.player == self.player1 and self.switch ==2:
+                self.player2.position.x = self.player1.position.x
+                self.player2.position.y = self.player1.position.y
+                self.player = self.player2
+            if self.player == self.player2 and self.switch ==1:
+                self.player1.position.x = self.player2.position.x
+                self.player1.position.y = self.player2.position.y
+                self.player = self.player1
+            self.camera = Camera(self.player)
+            self.player.update(dt,self.map.tiles,pygame.Rect(680+self.camera.x,530+self.camera.y,self.monster.get_width(),self.monster.get_height()))
             self.camera.scroll()
             ########## DISPLAY #######
             # self.display.fill(self.BLACK)
+            # self.monster = pygame.image.load('assets/zombie/png/male/Attack (1).png')
+            # self.monster= pygame.transform.scale(self.monster,(50,50))
             self.display = pygame.image.load('assets/map/Background.png')
             self.display= pygame.transform.scale(self.display,(1440,810))
             self.draw_text("PLAYING",20,self.width/2,self.height/2)
             self.window.blit(self.display,(int(self.camera.x),int(self.camera.y)))
             self.map.draw_map(self.window,(int(self.camera.x),int(self.camera.y)))
+            self.window.blit(self.monster,(680+self.camera.x,530+self.camera.y))
             self.window.blit(self.player.current_image,(int(self.player.rect.x + self.camera.x),int(self.player.rect.y + self.camera.y)))
-            # clock.tick(self.fps)
+            if self.player == self.player2:
+                if self.player.fireball.shoot:
+                    self.player.fireball.draw(self.window,self.camera.x,self.camera.y,self.map.tiles)
             pygame.display.update()
             self.reset_keys() 
     def check_events(self):
@@ -69,10 +100,16 @@ class Game():
                 if event.key == pygame.K_RIGHT:
                     self.player.RIGHT_KEY = True
                     self.player.FACING_LEFT = False
-                if event.key == pygame.K_z:
+                if event.key == pygame.K_z :
                     self.player.ATK=True
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
+                if event.key == pygame.K_s:
+                    # print(self.switch)
+                    if self.switch == 1:
+                        self.switch =2
+                    elif self.switch == 2:
+                        self.switch = 1
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     self.player.LEFT_KEY = False
