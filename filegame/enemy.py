@@ -47,6 +47,7 @@ class Enemy(pygame.sprite.Sprite):
             
     def attack(self, player):
         player.health -= 10
+        print(player.health)
         if player.health < 0:
             player.health = 0
         self.last_attack = pygame.time.get_ticks()

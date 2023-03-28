@@ -4,7 +4,7 @@ from .constants import GameConstants
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         # Stats 
-        self.HP = 10
+        self.health = 100
         self.DEF = 3
         self.DMG = 5
         self.SPD = 1
@@ -44,8 +44,8 @@ class Player(pygame.sprite.Sprite):
             action_wait_time = 100
             if self.action_cooldown > action_wait_time:
                 if pygame.Rect.colliderect(self.rect,surface):
-                    self.HP-=1
-                    print(self.HP)
+                    self.health-=1
+                    print(self.health)
                     self.action_cooldown =0
     # Di chuyen theo phuong ngang, co ma sat, animation
     def horizontal_movement(self,dt):

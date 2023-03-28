@@ -26,8 +26,8 @@ class Player2(Player):
             self.fireball.shoot = False
             self.fireball.rect.x = self.rect.x
             self.fireball.rect.y = self.rect.y
-            self.HP-=1
-            print(self.HP)
+            self.health-=1
+            print(self.health)
         if self.fireball.shoot:
             self.fireball.update(self.fireball.x_camera,self.fireball.FACING_LEFT)
         # print(1)
