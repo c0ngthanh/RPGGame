@@ -1,15 +1,18 @@
 import pygame
 from .spritesheet import Spritesheet
 from .constants import GameConstants
+pygame.mixer.init()
+sound = pygame.mixer.Sound('assets/sounds/hit.mp3')
+pygame.mixer.Sound.set_volume(sound,0.2)
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         # Stats 
-        self.HP = 10
+        self.health = 100
         self.DEF = 3
-        self.DMG = 5
         self.SPD = 1
         self.EXP = 0
-        self.LEVEL = 0
+        self.LEVEL = 0 
+        self.DMG = 5 
         # Animation
         pygame.sprite.Sprite.__init__(self)
         self.LEFT_KEY, self.RIGHT_KEY, self.FACING_LEFT,self.ATK,self.JUMP = False, False, False,False,False
@@ -25,6 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.state = 'idle'
         self.current_image = self.idle_frames_right[0]
         self.action_cooldown =1
+
         self.shield_active = False
         self.shield_timer = 0
         self.health = 100
@@ -32,17 +36,20 @@ class Player(pygame.sprite.Sprite):
         self.speed_booster = False
         self.speed_temp = 0
         self.speed_timer = 0
-
     def check_shield_expiration(self):
         if self.shield_active and pygame.time.get_ticks() - self.shield_timer > 5000:  # 5 seconds
             self.shield_active = False
             print("Shield expired")
-            
     def check_booster_expiration(self):
         if self.speed_booster and pygame.time.get_ticks() - self.speed_timer > 5000:  # 5 seconds
             self.speed_booster = False
             print("Booster expired")
-            
+    def get_color(self):
+        if self.health > 70:
+            return (0,255,0)
+        elif self.health > 40:
+            return (255, 234, 0)
+        return (255,0,0)
     # Draw on surface 
     def draw(self, display):
         display.blit(self.current_image, self.rect)
@@ -56,6 +63,13 @@ class Player(pygame.sprite.Sprite):
         self.check_shield_expiration()
         self.check_booster_expiration()
     #Draw ATK state
+    def levelup(self):
+        self.EXP +=1
+        if(self.EXP ==10):
+            self.LEVEL += 1
+            self.DMG = self.DMG +self.LEVEL *2
+            self.health = 100
+            self.EXP =0
     def checkATK(self,surface):
         if self.ATK:
             self.state = 'attack'
@@ -64,8 +78,10 @@ class Player(pygame.sprite.Sprite):
             action_wait_time = 100
             if self.action_cooldown > action_wait_time:
                 if pygame.Rect.colliderect(self.rect,surface):
-                    self.HP-=1
-                    print(self.HP)
+                    sound.play()
+                    self.health-=self.DMG
+                    self.levelup()
+                    print(self.health)
                     self.action_cooldown =0
     # Di chuyen theo phuong ngang, co ma sat, animation
     def horizontal_movement(self,dt):
