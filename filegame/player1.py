@@ -28,6 +28,22 @@ class Player(pygame.sprite.Sprite):
         self.state = 'idle'
         self.current_image = self.idle_frames_right[0]
         self.action_cooldown =1
+
+        self.shield_active = False
+        self.shield_timer = 0
+        self.health = 100
+        self.max_health = 100
+        self.speed_booster = False
+        self.speed_temp = 0
+        self.speed_timer = 0
+    def check_shield_expiration(self):
+        if self.shield_active and pygame.time.get_ticks() - self.shield_timer > 5000:  # 5 seconds
+            self.shield_active = False
+            print("Shield expired")
+    def check_booster_expiration(self):
+        if self.speed_booster and pygame.time.get_ticks() - self.speed_timer > 5000:  # 5 seconds
+            self.speed_booster = False
+            print("Booster expired")
     def get_color(self):
         if self.health > 70:
             return (0,255,0)
@@ -44,6 +60,8 @@ class Player(pygame.sprite.Sprite):
         self.vertical_movement(dt)
         self.checkCollisionsy(tiles)
         self.checkATK(surface)
+        self.check_shield_expiration()
+        self.check_booster_expiration()
     #Draw ATK state
     def levelup(self):
         self.EXP +=1

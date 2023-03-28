@@ -29,10 +29,10 @@ class Enemy(pygame.sprite.Sprite):
         self.check_collisions_y(tiles)
 
     def handle_ai(self, dt, player):
-        distance_to_player = self.position.distance_to(player.position)
+        distance_to_player = self.position.x - player.position.x
 
         # Chase the player if they are within 250 units
-        if -150 < distance_to_player < 150:
+        if -250 < distance_to_player < 250:
             if distance_to_player > 0:
                 self.acceleration.x = -0.1
             elif distance_to_player < 0:
@@ -43,7 +43,9 @@ class Enemy(pygame.sprite.Sprite):
                 self.attack(player)
         else:
             # Randomly choose a direction to move if the player is not within range
-            self.acceleration.x = random.choice([-0.1, 0, 0.1])
+            self.acceleration.x = random.choice([-0.01, 0, 0.01])
+    
+
             
     def attack(self, player):
         player.health -= 10
@@ -53,7 +55,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def horizontal_movement(self, dt):
         self.velocity.x += self.acceleration.x * dt
-        self.limit_velocity(2)
+        self.limit_velocity(1)
         self.position.x += self.velocity.x * dt
         self.rect.x = self.position.x
 

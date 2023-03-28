@@ -8,6 +8,7 @@ from .constants import GameConstants
 from .camera import Camera
 from .tiles import *
 from .enemy import Enemy
+from .item import Item, Coin, Shield, Booster, HealthPack
 
 clock = pygame.time.Clock() 
 # delay_time = 300
@@ -29,11 +30,16 @@ class Game():
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
-        self.fps = 60
+        self.fps = 30
         self.player1 = Player()
         self.player2 = Player2()
         self.player = self.player1
         self.enemy = Enemy(200, 500)
+        #item
+        self.coin = Coin(400, 500)
+        self.items = []  # Create a list to store items
+        self.generate_items()  # Generate the items
+        
         self.camera = Camera(self.player)
         self.spritesheet = Spritesheet('assets/map/spritesheet.png',1)
         self.map = TileMap('assets/map/map.csv', self.spritesheet )
@@ -43,6 +49,12 @@ class Game():
         self.delay =0
         self.BG = 1
         # self.fireball = FireBall()
+    def generate_items(self):
+        # Instantiate items and add them to the list
+        self.items.append(Coin(400, 500))
+        self.items.append(Booster(800, 500))
+        self.items.append(Shield(1200, 500))
+        self.items.append(HealthPack(600, 500))
     def renderText(self,text,size,x,y,color):
         font = pygame.font.Font('time new roman.ttf',size)
         text_surface = font.render(text,True,color)
@@ -74,6 +86,8 @@ class Game():
             self.camera = Camera(self.player)
             self.player.update(dt,self.map.tiles,pygame.Rect(680+self.camera.x,530+self.camera.y,self.monster.get_width(),self.monster.get_height()))
             self.enemy.update(dt,self.map.tiles, self.player)
+
+            
             self.camera.scroll()
             ########## DISPLAY #######
             # self.display.fill(self.BLACK)
@@ -90,6 +104,14 @@ class Game():
                 if self.player.fireball.shoot:
                     self.player.fireball.draw(self.window,self.camera.x,self.camera.y,self.map.tiles)
             self.window.blit(self.enemy.image, (int(self.enemy.rect.x + self.camera.x), int(self.enemy.rect.y + self.camera.y))) 
+            # self.window.blit(self.coin.image, (int(self.coin.rect.x + self.camera.x), int(self.coin.rect.y + self.camera.y)))         
+            #Update and draw item
+            for item in self.items:
+                item.update(self.player)
+                if not item.collected:
+                    self.window.blit(item.image, (int(item.rect.x + self.camera.x), int(item.rect.y + self.camera.y)))
+            # Remove collected items from the list
+            self.items = [item for item in self.items if not item.collected]
             pygame.draw.rect(self.window,self.player.get_color(),pygame.Rect(0,0,self.player.health*2,30))
             self.renderText('HP: ' +str(self.player.health) + "/100",20,0,0,self.WHITE)
             pygame.draw.rect(self.window,(128,128,0),pygame.Rect(0,30,self.player.EXP*20,30))
