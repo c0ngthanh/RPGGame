@@ -7,6 +7,8 @@ from .constants import GameConstants
 # from .spritesheet import Spritesheet
 from .camera import Camera
 from .tiles import *
+from .enemy import Enemy
+
 clock = pygame.time.Clock() 
 # delay_time = 300
 pygame.mixer.init()
@@ -30,6 +32,7 @@ class Game():
         self.player1 = Player()
         self.player2 = Player2()
         self.player = self.player1
+        self.enemy = Enemy(200, 500)
         self.camera = Camera(self.player)
         self.spritesheet = Spritesheet('assets/map/spritesheet.png',1)
         self.map = TileMap('assets/map/map.csv', self.spritesheet )
@@ -62,6 +65,7 @@ class Game():
                 self.player = self.player1
             self.camera = Camera(self.player)
             self.player.update(dt,self.map.tiles,pygame.Rect(680+self.camera.x,530+self.camera.y,self.monster.get_width(),self.monster.get_height()))
+            self.enemy.update(dt,self.map.tiles, self.player)
             self.camera.scroll()
             ########## DISPLAY #######
             # self.display.fill(self.BLACK)
@@ -77,6 +81,8 @@ class Game():
             if self.player == self.player2:
                 if self.player.fireball.shoot:
                     self.player.fireball.draw(self.window,self.camera.x,self.camera.y,self.map.tiles)
+            self.window.blit(self.enemy.image, (int(self.enemy.rect.x + self.camera.x), int(self.enemy.rect.y + self.camera.y))) 
+
             pygame.display.update()
             self.reset_keys() 
     def check_events(self):
