@@ -11,10 +11,12 @@ class Player2(Player):
         self.fireball = FireBall(1)
         # self.bigfireball = FireBall(0.5)
         self.fireball_FACING_LEFT = True
-    def checkATK(self,surface):
+    def checkATK(self,enemy):
+        action_wait_time = 100
         if self.ATK:
             self.state = 'attack'
             self.animate()
+            self.action_cooldown +=3
             if not self.fireball.shoot:
                 self.fireball.rect.x = self.rect.x
                 self.fireball.rect.y = self.rect.y
@@ -25,14 +27,27 @@ class Player2(Player):
             #     print(1)
         # print(self.ATK)
         # print(self.FACING_LEFT)
-        if pygame.Rect.colliderect(self.fireball.rect,surface):
-            self.fireball.shoot = False
-            self.fireball.rect.x = 0
-            self.fireball.rect.y = 0
-            self.health-=self.DMG
-            self.levelup()
-            sound.play()
-            print(self.health)
+        for i in range(len(enemy)):
+            if i == len(enemy):
+                break
+            if enemy[i].position.y >= 800:
+                    enemy.pop(i)
+                    if i == len(enemy):
+                        break
+            if self.action_cooldown > action_wait_time:
+                if pygame.Rect.colliderect(self.fireball.rect,enemy[i].rect):
+                    self.fireball.shoot = False
+                    self.fireball.rect.x = 0
+                    self.fireball.rect.y = 0
+                    enemy[i].health-=self.DMG
+                    if self.fireball.FACING_LEFT:
+                        enemy[i].position.x -= 10
+                    else:
+                        enemy[i].position.x += 10
+                    if enemy[i].health <= 0:
+                        enemy.pop(i)
+                    self.levelup()
+                    sound.play()
         if self.fireball.shoot:
             self.fireball.update(self.fireball.x_camera,self.fireball.FACING_LEFT)
         # print(1)
