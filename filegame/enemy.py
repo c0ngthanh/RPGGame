@@ -20,8 +20,8 @@ class Enemy(pygame.sprite.Sprite):
         self.on_ground = False
 
         # Attributes
-        self.health = 200
-        self.max_health = 200
+        self.health = 50
+        self.max_health = 50
         self.state = 'moving left'
         self.attack_range = 50
         self.attack_cooldown = 1000  # Attack cooldown in milliseconds

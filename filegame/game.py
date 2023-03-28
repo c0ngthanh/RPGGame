@@ -84,7 +84,7 @@ class Game():
                 self.player1.position.y = self.player2.position.y
                 self.player = self.player1
             self.camera = Camera(self.player)
-            self.player.update(dt,self.map.tiles,pygame.Rect(680+self.camera.x,530+self.camera.y,self.monster.get_width(),self.monster.get_height()))
+            self.player.update(dt,self.map.tiles,self.enemy)
             for i in range(len(self.enemy)):
                 self.enemy[i].update(dt,self.map.tiles, self.player,self.map.csv)
             self.camera.scroll()
