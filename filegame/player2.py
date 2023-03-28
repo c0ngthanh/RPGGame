@@ -2,6 +2,9 @@ from .player1 import Player
 from .spritesheet import Spritesheet
 from .constants import GameConstants
 import pygame
+pygame.mixer.init()
+sound = pygame.mixer.Sound('assets/sounds/hit.mp3')
+pygame.mixer.Sound.set_volume(sound,0.2)
 class Player2(Player):
     def __init__(self):
         super().__init__()
@@ -24,10 +27,12 @@ class Player2(Player):
         # print(self.FACING_LEFT)
         if pygame.Rect.colliderect(self.fireball.rect,surface):
             self.fireball.shoot = False
-            self.fireball.rect.x = self.rect.x
-            self.fireball.rect.y = self.rect.y
-            self.HP-=1
-            print(self.HP)
+            self.fireball.rect.x = 0
+            self.fireball.rect.y = 0
+            self.health-=self.DMG
+            self.levelup()
+            sound.play()
+            print(self.health)
         if self.fireball.shoot:
             self.fireball.update(self.fireball.x_camera,self.fireball.FACING_LEFT)
         # print(1)

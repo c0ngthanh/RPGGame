@@ -15,6 +15,7 @@ clock = pygame.time.Clock()
 pygame.mixer.init()
 pygame.mixer.music.load('assets/music.mp3')
 pygame.mixer.music.set_volume(0.2)
+RED = (255,0,0)
 class Game():
     def __init__(self):
         pygame.init()
@@ -46,15 +47,20 @@ class Game():
         self.monster= pygame.transform.scale(self.monster,(50,50))
         self.switch = 1
         self.delay =0
+        self.BG = 1
         # self.fireball = FireBall()
-
     def generate_items(self):
         # Instantiate items and add them to the list
         self.items.append(Coin(400, 500))
         self.items.append(Booster(800, 500))
         self.items.append(Shield(1200, 500))
         self.items.append(HealthPack(600, 500))
-
+    def renderText(self,text,size,x,y,color):
+        font = pygame.font.Font('time new roman.ttf',size)
+        text_surface = font.render(text,True,color)
+        text_rect = text_surface.get_rect()
+        text_rect.topleft = (x,y)
+        self.window.blit(text_surface,text_rect)
     def game_loop(self):
         # i=1 ####
         pygame.mixer.music.play(-1)
@@ -87,10 +93,10 @@ class Game():
             # self.display.fill(self.BLACK)
             # self.monster = pygame.image.load('assets/zombie/png/male/Attack (1).png')
             # self.monster= pygame.transform.scale(self.monster,(50,50))
-            self.display = pygame.image.load('assets/map/Background.png')
-            self.display= pygame.transform.scale(self.display,(1440,810))
-            self.draw_text("PLAYING",20,self.width/2,self.height/2)
-            self.window.blit(self.display,(int(self.camera.x),int(self.camera.y)))
+            self.BG = pygame.image.load('assets/map/Background.png')
+            self.BG= pygame.transform.scale(self.BG,(1440,810))
+            # self.draw_text("PLAYING",20,self.width/2,self.height/2,RED)
+            self.window.blit(self.BG,(int(self.camera.x),int(self.camera.y)))
             self.map.draw_map(self.window,(int(self.camera.x),int(self.camera.y)))
             self.window.blit(self.monster,(680+self.camera.x,530+self.camera.y))
             self.window.blit(self.player.current_image,(int(self.player.rect.x + self.camera.x),int(self.player.rect.y + self.camera.y)))
@@ -98,8 +104,7 @@ class Game():
                 if self.player.fireball.shoot:
                     self.player.fireball.draw(self.window,self.camera.x,self.camera.y,self.map.tiles)
             self.window.blit(self.enemy.image, (int(self.enemy.rect.x + self.camera.x), int(self.enemy.rect.y + self.camera.y))) 
-            # self.window.blit(self.coin.image, (int(self.coin.rect.x + self.camera.x), int(self.coin.rect.y + self.camera.y))) 
-            
+            # self.window.blit(self.coin.image, (int(self.coin.rect.x + self.camera.x), int(self.coin.rect.y + self.camera.y)))         
             #Update and draw item
             for item in self.items:
                 item.update(self.player)
@@ -107,7 +112,11 @@ class Game():
                     self.window.blit(item.image, (int(item.rect.x + self.camera.x), int(item.rect.y + self.camera.y)))
             # Remove collected items from the list
             self.items = [item for item in self.items if not item.collected]
-            
+            pygame.draw.rect(self.window,self.player.get_color(),pygame.Rect(0,0,self.player.health*2,30))
+            self.renderText('HP: ' +str(self.player.health) + "/100",20,0,0,self.WHITE)
+            pygame.draw.rect(self.window,(128,128,0),pygame.Rect(0,30,self.player.EXP*20,30))
+            self.renderText('Exp: ' +str(self.player.EXP) + "/10",20,0,30,self.WHITE)
+            self.renderText('Level: ' +str(self.player.LEVEL),20,0,60,self.WHITE)
             pygame.display.update()
             self.reset_keys() 
     def check_events(self):
@@ -156,9 +165,9 @@ class Game():
                         self.player.is_jumping = False
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False,False,False,False
-    def draw_text(self,text,size,x,y):
+    def draw_text(self,text,size,x,y,color=(255,255,255)):
         font = pygame.font.Font(self.font_name,size)
-        text_surface = font.render(text,True,self.WHITE)
+        text_surface = font.render(text,True,color)
         text_rect = text_surface.get_rect()
         text_rect.center = (x,y)
         self.display.blit(text_surface,text_rect)
