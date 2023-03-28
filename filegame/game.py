@@ -30,13 +30,14 @@ class Game():
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
-        self.fps = 30
+        self.fps = 45
         self.player1 = Player()
         self.player2 = Player2()
         self.player = self.player1
         #self.enemy = ShootingMonster(200, 500)
         self.boss = Boss(200, 500)
         # item
+
         self.coin = Coin(400, 500)
         self.items = []  # Create a list to store items
         self.generate_items()  # Generate the items
@@ -91,6 +92,7 @@ class Game():
             #self.enemy.update(dt, self.map.tiles, self.player)
             self.boss.update(dt, self.map.tiles, self.player)
 
+
             self.camera.scroll()
             ########## DISPLAY #######
             # self.display.fill(self.BLACK)
@@ -100,11 +102,14 @@ class Game():
             self.BG= pygame.transform.scale(self.BG,(1440,810))
             # self.draw_text("PLAYING",20,self.width/2,self.height/2,RED)
             self.window.blit(self.BG,(int(self.camera.x),int(self.camera.y)))
+            self.window.blit(self.BG,(int(self.camera.x)+1440,int(self.camera.y)))
+            self.window.blit(self.BG,(int(self.camera.x)+2880,int(self.camera.y)))
             self.map.draw_map(self.window,(int(self.camera.x),int(self.camera.y)))
             self.window.blit(self.monster,(680+self.camera.x,530+self.camera.y))
             self.window.blit(self.player.current_image,(int(self.player.rect.x + self.camera.x),int(self.player.rect.y + self.camera.y)))
             if self.player == self.player2:
                 if self.player.fireball.shoot:
+
                     self.player.fireball.draw(
                         self.window, self.camera.x, self.camera.y, self.map.tiles)
             # self.window.blit(self.enemy.image, (int(
@@ -116,6 +121,7 @@ class Game():
             #Fireball shooting
             self.boss.draw(self.window, self.camera.x, self.camera.y, self.map.tiles, self.player)
             # Update and draw item
+
             for item in self.items:
                 item.update(self.player)
                 if not item.collected:

@@ -3,6 +3,9 @@ from .constants import GameConstants
 import random
 from .spritesheet import Spritesheet
 import math
+=======
+import os
+import csv
 
 
 class EnemyFireBall():
@@ -136,13 +139,14 @@ class Character(pygame.sprite.Sprite):
         self.attack_cooldown = attack_cooldown
         self.last_attack = 0
 
-    def update(self, dt, tiles, player):
-        self.handle_ai(dt, player)
+    def update(self, dt, tiles, player,csv):
+        self.handle_ai(dt, player,tiles,csv)
+        self.animate()
         self.horizontal_movement(dt)
         self.check_collisions_x(tiles)
         self.vertical_movement(dt)
         self.check_collisions_y(tiles)
-
+        # self.test(tiles,csv)
     def handle_ai(self, dt, player):
         # Override this method in subclasses to implement AI behavior
         pass
@@ -219,6 +223,7 @@ class Character(pygame.sprite.Sprite):
 
         pygame.draw.rect(surface, (100, 100, 100), health_bar_bg)
         pygame.draw.rect(surface, (255, 0, 0), health_bar_fill)
+
 
 
 class Creep(Character):
@@ -393,4 +398,5 @@ class Boss(Character):
         self.current_frame = 0
         self.last_updated = 0
         self.current_image = self.frames[self.current_frame]
+
 

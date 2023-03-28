@@ -5,7 +5,7 @@ class Spritesheet:
     def __init__(self, filename,scale):
         self.filename = filename
         self.scale = scale
-        self.sprite_sheet = pygame.image.load(filename).convert()
+        self.sprite_sheet = pygame.image.load(filename)
         self.width,self.height = self.sprite_sheet.get_rect().width/scale,self.sprite_sheet.get_rect().height/scale
         self.sprite_sheet = pygame.transform.scale(self.sprite_sheet,(self.width,self.height))
         self.meta_data = self.filename.replace('png', 'json')

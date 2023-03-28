@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.SPD = 1
         self.EXP = 0
         self.LEVEL = 0 
-        self.DMG = 5 
+        self.DMG = 50 
         # Animation
         pygame.sprite.Sprite.__init__(self)
         self.LEFT_KEY, self.RIGHT_KEY, self.FACING_LEFT,self.ATK,self.JUMP = False, False, False,False,False
@@ -54,12 +54,12 @@ class Player(pygame.sprite.Sprite):
     def draw(self, display):
         display.blit(self.current_image, self.rect)
     # Update state, animation, position of player 
-    def update(self, dt, tiles,surface):
+    def update(self, dt, tiles,enemy):
         self.horizontal_movement(dt)
         self.checkCollisionsx(tiles)
         self.vertical_movement(dt)
         self.checkCollisionsy(tiles)
-        self.checkATK(surface)
+        self.checkATK(enemy)
         self.check_shield_expiration()
         self.check_booster_expiration()
     #Draw ATK state
@@ -70,33 +70,49 @@ class Player(pygame.sprite.Sprite):
             self.DMG = self.DMG +self.LEVEL *2
             self.health = 100
             self.EXP =0
-    def checkATK(self,surface):
+    def checkATK(self,enemy):
         if self.ATK:
             self.state = 'attack'
             self.animate()
             self.action_cooldown +=3
             action_wait_time = 100
-            if self.action_cooldown > action_wait_time:
-                if pygame.Rect.colliderect(self.rect,surface):
-                    sound.play()
-                    self.health-=self.DMG
-                    self.levelup()
-                    print(self.health)
-                    self.action_cooldown =0
+            for i in range(len(enemy)):
+                if i == len(enemy):
+                    break
+                if enemy[i].position.y >= 800:
+                    enemy.pop(i)
+                    if i == len(enemy):
+                        break
+                if self.action_cooldown > action_wait_time:
+
+                    if pygame.Rect.colliderect(self.rect,enemy[i].rect):
+                        sound.play()
+                        enemy[i].health-=self.DMG
+                        if self.FACING_LEFT:
+                            enemy[i].acceleration.x -= 0.1
+                        else:
+                            enemy[i].acceleration.x += 0.1
+                        if enemy[i].health <= 0:
+                            enemy.pop(i)
+                            if i == len(enemy):
+                                break
+                        self.levelup()
+                        # print(enemy[i].health)
+                        self.action_cooldown =0
     # Di chuyen theo phuong ngang, co ma sat, animation
     def horizontal_movement(self,dt):
         self.acceleration.x = 0
         if self.LEFT_KEY:
-            self.acceleration.x -= .2
+            self.acceleration.x -= .3
             self.state = 'moving left'
             self.animate()
         elif self.RIGHT_KEY:
-            self.acceleration.x += .2
+            self.acceleration.x += .3
             self.state = 'moving right'
             self.animate()
         self.acceleration.x += self.velocity.x * self.friction
         self.velocity.x += self.acceleration.x * dt
-        self.limit_velocity(4)
+        self.limit_velocity(5)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
         if(self.position.x > GameConstants.BACKGROUNWIDTH - self.rect.w):
             self.position.x = GameConstants.BACKGROUNWIDTH - self.rect.w
