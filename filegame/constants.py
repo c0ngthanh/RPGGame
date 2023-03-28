@@ -8,7 +8,7 @@ class GameConstants:
     GAMEWIDTH       = 810
     GAMEHEIGHT      = 810
     GAMEMAXFPS      = 60
-    BACKGROUNWIDTH  = 1440
+    BACKGROUNWIDTH  = 5000
 
 
 class LevelConstants:

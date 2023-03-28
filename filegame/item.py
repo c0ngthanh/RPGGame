@@ -3,9 +3,6 @@ import os
 import random
 import math
 import pygame.mixer
-
-
-
 class Item(pygame.sprite.Sprite):
     def __init__(self, image_path, x, y, scale_factor=1):
         super().__init__()
@@ -51,7 +48,7 @@ class Coin(Item):
         self.scale_factor = 1.0  # Initialize the scale factor
         self.growing = False  # Initialize the scaling direction
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/coin_pickup.mp3")
-        
+        pygame.mixer.Sound.set_volume(self.pickup_sound,0.2)
     def update(self, player):
         self.hover()
         self.rotate_horizontally_smooth()
@@ -90,7 +87,7 @@ class Booster(Item):
         super().__init__("./assets/images/speed_potion.png", x, y)
         super().scale_image(scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/power_up.wav")
-
+        pygame.mixer.Sound.set_volume(self.pickup_sound,0.2)
     def update(self, player):
         self.hover()
         if self.check_collision(player):
@@ -109,7 +106,7 @@ class Shield(Item):
     def __init__(self, x, y, scale_factor=0.6):
         super().__init__("./assets/images/Shield.png", x, y, scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/power_up.wav")
-
+        pygame.mixer.Sound.set_volume(self.pickup_sound,0.2)
     def update(self, player):
         self.hover()
         if self.check_collision(player):
@@ -126,7 +123,7 @@ class HealthPack(Item):
     def __init__(self, x, y, scale_factor=0.6):
         super().__init__("./assets/images/heatFull.png", x, y, scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/health_pack.wav")
-
+        pygame.mixer.Sound.set_volume(self.pickup_sound,0.2)
     def update(self, player):
         self.hover()
         if self.check_collision(player):

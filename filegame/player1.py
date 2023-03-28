@@ -87,16 +87,16 @@ class Player(pygame.sprite.Sprite):
     def horizontal_movement(self,dt):
         self.acceleration.x = 0
         if self.LEFT_KEY:
-            self.acceleration.x -= .2
+            self.acceleration.x -= .3
             self.state = 'moving left'
             self.animate()
         elif self.RIGHT_KEY:
-            self.acceleration.x += .2
+            self.acceleration.x += .3
             self.state = 'moving right'
             self.animate()
         self.acceleration.x += self.velocity.x * self.friction
         self.velocity.x += self.acceleration.x * dt
-        self.limit_velocity(4)
+        self.limit_velocity(5)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
         if(self.position.x > GameConstants.BACKGROUNWIDTH - self.rect.w):
             self.position.x = GameConstants.BACKGROUNWIDTH - self.rect.w

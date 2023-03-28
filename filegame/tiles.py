@@ -20,6 +20,7 @@ class TileMap():
         self.map_surface = pygame.Surface((self.map_w, self.map_h))
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
+        self.csv = self.read_csv(filename) 
 
     def draw_map(self, surface,rect):
         surface.blit(self.map_surface, rect)
