@@ -6,6 +6,8 @@ from .constants import GameConstants
 # from .spritesheet import Spritesheet
 from .camera import Camera
 from .tiles import *
+from .enemy import Enemy
+
 clock = pygame.time.Clock() 
 class Game():
     def __init__(self):
@@ -21,8 +23,9 @@ class Game():
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
-        self.fps = 60
+        self.fps = 100
         self.player = Player()
+        self.enemy = Enemy(200, 500)
         self.camera = Camera(self.player)
         self.spritesheet = Spritesheet('assets/map/spritesheet.png',1)
         self.map = TileMap('assets/map/map.csv', self.spritesheet )
@@ -36,6 +39,7 @@ class Game():
                 self.playing = False
             # UPDATE SPRITE,CAMERA
             self.player.update(dt,self.map.tiles)
+            self.enemy.update(dt,self.map.tiles, self.player)
             self.camera.scroll()
             ########## DISPLAY #######
             # self.display.fill(self.BLACK)
@@ -45,7 +49,8 @@ class Game():
             self.window.blit(self.display,(int(self.camera.x),int(self.camera.y)))
             self.map.draw_map(self.window,(int(self.camera.x),int(self.camera.y)))
             self.window.blit(self.player.current_image,(int(self.player.rect.x + self.camera.x),int(self.player.rect.y + self.camera.y)))
-            # clock.tick(self.fps)
+            self.window.blit(self.enemy.image, (int(self.enemy.rect.x + self.camera.x), int(self.enemy.rect.y + self.camera.y))) 
+            clock.tick(self.fps)
             pygame.display.update()
             self.reset_keys() 
     def check_events(self):
