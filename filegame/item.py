@@ -90,6 +90,7 @@ class Booster(Item):
         super().__init__("./assets/images/speed_potion.png", x, y)
         super().scale_image(scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/power_up.wav")
+        self.pickup_sound.set_volume(0.2)
 
     def update(self, player):
         self.hover()
@@ -109,6 +110,8 @@ class Shield(Item):
     def __init__(self, x, y, scale_factor=0.6):
         super().__init__("./assets/images/Shield.png", x, y, scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/power_up.wav")
+        self.pickup_sound.set_volume(0.2)
+
 
     def update(self, player):
         self.hover()
@@ -126,6 +129,7 @@ class HealthPack(Item):
     def __init__(self, x, y, scale_factor=0.6):
         super().__init__("./assets/images/heatFull.png", x, y, scale_factor)
         self.pickup_sound = pygame.mixer.Sound("./assets/sounds/health_pack.wav")
+        self.pickup_sound.set_volume(0.2)
 
     def update(self, player):
         self.hover()
