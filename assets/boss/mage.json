@@ -1,0 +1,175 @@
+{
+	"frames": {
+		"Attack (1).png": {
+			"frame": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+		"Attack (2).png": {
+			"frame": {
+				"x": 122,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (3).png": {
+			"frame": {
+				"x": 244,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (4).png": {
+			"frame": {
+				"x": 366,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (5).png": {
+			"frame": {
+				"x": 0,
+				"y": 110,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (6).png": {
+			"frame": {
+				"x": 122,
+				"y": 110,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (7).png": {
+			"frame": {
+				"x": 224,
+				"y": 110,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		},
+        "Attack (8).png": {
+			"frame": {
+				"x": 336,
+				"y": 110,
+				"w": 122,
+				"h": 110
+			},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {
+				"x": 0,
+				"y": 0,
+				"w": 122,
+				"h": 110
+			},
+			"sourceSize": {
+				"w": 122,
+				"h": 110
+			}
+		}
+	},
+	"meta": {
+		"app": "http://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "spritesheet.png",
+		"format": "RGBA8888",
+		"size": {
+			"w": 21738,
+			"h": 526
+		},
+		"scale": "1"
+	}
+}

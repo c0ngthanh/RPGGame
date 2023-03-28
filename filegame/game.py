@@ -9,6 +9,7 @@ from .camera import Camera
 from .tiles import *
 from .enemy import Creep, Boss, ShootingMonster
 from .item import Item, Coin, Shield, Booster, HealthPack
+from .chest import Chest
 
 clock = pygame.time.Clock()
 # delay_time = 300
@@ -35,29 +36,20 @@ class Game():
         self.player2 = Player2()
         self.player = self.player1
         #self.enemy = ShootingMonster(200, 500)
-        self.boss = Boss(200, 500)
+        # self.boss = Creep(200, 500)
+        self.enemy = [Creep(200, 500),Creep(500, 500),Creep(600, 500),Creep(700, 500),Creep(800, 500),Creep(1700,500),Boss(3392,700)]
         # item
-
+        self.chest = Chest(1000,600)
         self.coin = Coin(400, 500)
-        self.items = []  # Create a list to store items
-        self.generate_items()  # Generate the items
-
+        self.items = self.chest.items
+        self.dropItem = False
         self.camera = Camera(self.player)
         self.spritesheet = Spritesheet('assets/map/spritesheet.png', 1)
         self.map = TileMap('assets/map/map.csv', self.spritesheet)
-        self.monster = pygame.image.load(
-            'assets/zombie/png/male/Attack (1).png')
-        self.monster = pygame.transform.scale(self.monster, (50, 50))
         self.switch = 1
         self.delay =0
         self.BG = 1
         # self.fireball = FireBall()
-    def generate_items(self):
-        # Instantiate items and add them to the list
-        self.items.append(Coin(400, 500))
-        self.items.append(Booster(800, 500))
-        self.items.append(Shield(1200, 500))
-        self.items.append(HealthPack(600, 500))
     def renderText(self,text,size,x,y,color):
         font = pygame.font.Font('time new roman.ttf',size)
         text_surface = font.render(text,True,color)
@@ -69,6 +61,8 @@ class Game():
         pygame.mixer.music.play(-1)
         dt = clock.tick(60) * .001 * self.fps
         while self.playing:
+            if self.player.health <=0 :
+                return
             # i=(i+1)%len(self.knight1)
             self.check_events()
             if self.START_KEY:
@@ -87,10 +81,10 @@ class Game():
                 self.player1.position.y = self.player2.position.y
                 self.player = self.player1
             self.camera = Camera(self.player)
-            self.player.update(dt, self.map.tiles, pygame.Rect(
-                680+self.camera.x, 530+self.camera.y, self.monster.get_width(), self.monster.get_height()))
+            self.player.update(dt,self.map.tiles,self.enemy)
             #self.enemy.update(dt, self.map.tiles, self.player)
-            self.boss.update(dt, self.map.tiles, self.player)
+            for i in range(len(self.enemy)):
+                self.enemy[i].update(dt,self.map.tiles, self.player,self.map.csv)
 
 
             self.camera.scroll()
@@ -105,11 +99,14 @@ class Game():
             self.window.blit(self.BG,(int(self.camera.x)+1440,int(self.camera.y)))
             self.window.blit(self.BG,(int(self.camera.x)+2880,int(self.camera.y)))
             self.map.draw_map(self.window,(int(self.camera.x),int(self.camera.y)))
-            self.window.blit(self.monster,(680+self.camera.x,530+self.camera.y))
+            # self.window.blit(self.monster,(680+self.camera.x,530+self.camera.y))
             self.window.blit(self.player.current_image,(int(self.player.rect.x + self.camera.x),int(self.player.rect.y + self.camera.y)))
+            # print(self.chest.rect)
+            self.chest.update(dt,self.map.tiles)
+            if not self.chest.delete:
+                self.window.blit(self.chest.current_image,(int(self.chest.rect.x + self.camera.x),int(self.chest.rect.y + self.camera.y)))
             if self.player == self.player2:
                 if self.player.fireball.shoot:
-
                     self.player.fireball.draw(
                         self.window, self.camera.x, self.camera.y, self.map.tiles)
             # self.window.blit(self.enemy.image, (int(
@@ -119,12 +116,17 @@ class Game():
             #     self.boss.rect.x + self.camera.x), int(self.boss.rect.y + self.camera.y)))
             
             #Fireball shooting
-            self.boss.draw(self.window, self.camera.x, self.camera.y, self.map.tiles, self.player)
+            for i in range(len(self.enemy)):
+                if type(self.enemy[i]) is Boss:
+                    self.enemy[i].draw(self.window, self.camera.x, self.camera.y, self.map.tiles, self.player)
             # Update and draw item
-
+            for i in range(len(self.enemy)):
+                self.window.blit(self.enemy[i].current_image, (int(self.enemy[i].rect.x + self.camera.x), int(self.enemy[i].rect.y + self.camera.y)))
+            if self.chest.is_open:
+                self.dropItem = True
             for item in self.items:
-                item.update(self.player)
-                if not item.collected:
+                if not item.collected and self.dropItem:
+                    item.update(self.player)
                     self.window.blit(item.image, (int(
                         item.rect.x + self.camera.x), int(item.rect.y + self.camera.y)))
             # Remove collected items from the list
@@ -168,6 +170,9 @@ class Game():
                         self.switch = 2
                     elif self.switch == 2:
                         self.switch = 1
+                if event.key == pygame.K_x:
+                    if pygame.Rect.colliderect(self.player.rect,self.chest.rect):
+                        self.chest.is_open = True
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     self.player.LEFT_KEY = False

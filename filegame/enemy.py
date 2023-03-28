@@ -3,7 +3,6 @@ from .constants import GameConstants
 import random
 from .spritesheet import Spritesheet
 import math
-=======
 import os
 import csv
 
@@ -122,11 +121,7 @@ class HomingFireBall(EnemyFireBall):
 class Character(pygame.sprite.Sprite):
     def __init__(self, x=0, y=0, width=32, height=48, max_health=200, attack_range=50, attack_cooldown=1000):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((width, height))
-        self.image.fill((255, 0, 255))
-        self.rect = self.image.get_rect()
-        self.position, self.velocity = pygame.math.Vector2(
-            x, y), pygame.math.Vector2(0, 0)
+        self.position, self.velocity = pygame.math.Vector2(x, y), pygame.math.Vector2(0, 0)
         self.gravity, self.friction = 0.35, -0.12
         self.acceleration = pygame.math.Vector2(0, self.gravity)
         self.on_ground = False
@@ -134,7 +129,7 @@ class Character(pygame.sprite.Sprite):
         # Attributes
         self.health = max_health
         self.max_health = max_health
-        self.ai_state = 'idle'
+        self.state = 'idle'
         self.attack_range = attack_range
         self.attack_cooldown = attack_cooldown
         self.last_attack = 0
@@ -147,13 +142,14 @@ class Character(pygame.sprite.Sprite):
         self.vertical_movement(dt)
         self.check_collisions_y(tiles)
         # self.test(tiles,csv)
-    def handle_ai(self, dt, player):
+    def handle_ai(self, dt, player,tiles,csv):
         # Override this method in subclasses to implement AI behavior
         pass
 
     def attack(self, player):
         player.health -= 10
-        print(player.health)
+        self.position.x = player.position.x+1
+        self.position.y = player.position.y
         if player.health < 0:
             player.health = 0
         self.last_attack = pygame.time.get_ticks()
@@ -223,31 +219,133 @@ class Character(pygame.sprite.Sprite):
 
         pygame.draw.rect(surface, (100, 100, 100), health_bar_bg)
         pygame.draw.rect(surface, (255, 0, 0), health_bar_fill)
-
+    def animate(self):
+        now = pygame.time.get_ticks()
+        if self.state == 'moving right' or self.state == 'moving left':
+            if now - self.last_updated > 50:
+                self.last_updated = now
+                self.current_frame = (self.current_frame + 1) % len(self.running_frames_left)
+                if self.state == 'moving left':
+                    self.current_image = self.running_frames_left[self.current_frame]
+                elif self.state == 'moving right':
+                    self.current_image = self.running_frames_right[self.current_frame]
+        elif self.state == 'attack':
+            # print(self.current_frame)
+            if now - self.last_updated > 30:
+                self.last_updated = now
+                self.current_frame = (self.current_frame + 1) % len(self.attacking_frames_left)
+                if self.state == 'attack':
+                    self.current_image = self.attacking_frames_left[self.current_frame]
+                # elif self.state == 'attack' and not self.FACING_LEFT:
+                #     self.current_image = self.attacking_frames_right[self.current_frame]
+    def load_frames(self):
+        my_spritesheet = Spritesheet('assets/zombie/zombie.png',10)
+        self.attacking_frames_right = [my_spritesheet.parse_sprite("Attack (1).png"),my_spritesheet.parse_sprite("Attack (2).png"),
+                                     my_spritesheet.parse_sprite("Attack (3).png"),my_spritesheet.parse_sprite("Attack (4).png"),
+                                     my_spritesheet.parse_sprite("Attack (5).png"),my_spritesheet.parse_sprite("Attack (6).png"),
+                                     my_spritesheet.parse_sprite("Attack (7).png"),my_spritesheet.parse_sprite("Attack (8).png")]
+        self.running_frames_right = [my_spritesheet.parse_sprite("Walk (1).png"),my_spritesheet.parse_sprite("Walk (2).png"),
+                                     my_spritesheet.parse_sprite("Walk (3).png"),my_spritesheet.parse_sprite("Walk (4).png"),
+                                     my_spritesheet.parse_sprite("Walk (5).png"),my_spritesheet.parse_sprite("Walk (6).png"),
+                                     my_spritesheet.parse_sprite("Walk (7).png"),my_spritesheet.parse_sprite("Walk (8).png"),
+                                     my_spritesheet.parse_sprite("Walk (9).png"),my_spritesheet.parse_sprite("Walk (10).png")]
+        self.dead_frames_right =    [my_spritesheet.parse_sprite("Dead (1).png"),my_spritesheet.parse_sprite("Dead (2).png"),
+                                     my_spritesheet.parse_sprite("Dead (3).png"),my_spritesheet.parse_sprite("Dead (4).png"),
+                                     my_spritesheet.parse_sprite("Dead (5).png"),my_spritesheet.parse_sprite("Dead (6).png"),
+                                     my_spritesheet.parse_sprite("Dead (7).png"),my_spritesheet.parse_sprite("Dead (8).png"),
+                                     my_spritesheet.parse_sprite("Dead (9).png"),my_spritesheet.parse_sprite("Dead (10).png"),
+                                     my_spritesheet.parse_sprite("Dead (11).png"),my_spritesheet.parse_sprite("Dead (12).png")]
+        self.dead_frames_left = []
+        for frame in self.dead_frames_right:
+            self.dead_frames_left.append( pygame.transform.flip(frame,True, False) )
+        self.running_frames_left = []
+        for frame in self.running_frames_right:
+            self.running_frames_left.append(pygame.transform.flip(frame, True, False))
+        self.attacking_frames_left = []
+        for frame in self.attacking_frames_right:
+            self.attacking_frames_left.append( pygame.transform.flip(frame,True, False) )
 
 
 class Creep(Character):
     def __init__(self, x=0, y=0):
+        self.load_frames()
+        self.current_image = self.running_frames_right[0]
+        self.current_frame = 0
+        self.last_updated = 0
+        # self.image.fill((255, 0, 255))
+        self.rect = self.attacking_frames_left[0].get_rect()
         super().__init__(x, y, width=32, height=48, max_health=200,
                          attack_range=50, attack_cooldown=1000)
+        # self.load_frames()
+        self.state = 'moving left'
 
-    def handle_ai(self, dt, player):
-        distance_to_player = self.position.x - player.position.x
+    def handle_ai(self, dt, player,tiles,csv):
+        # distance_to_player = self.position.x - player.position.x
+
+        # # Chase the player if they are within 250 units
+        # if -250 < distance_to_player < 250:
+        #     if distance_to_player > 0:
+        #         self.acceleration.x = -0.1
+        #     elif distance_to_player < 0:
+        #         self.acceleration.x = 0.1
+
+        #     # Attack the player if they are within the attack range and the attack is not on cooldown
+        #     if distance_to_player < self.attack_range and ((pygame.time.get_ticks() - self.last_attack) > self.attack_cooldown):
+        #         self.attack(player)
+        # else:
+        #     # Randomly choose a direction to move if the player is not within range
+        #     self.acceleration.x = random.choice([-0.01, 0, 0.01])
+        distance_to_player = math.sqrt((self.position.x - player.position.x)**2 + (self.position.y - player.position.y)**2)
 
         # Chase the player if they are within 250 units
-        if -250 < distance_to_player < 250:
-            if distance_to_player > 0:
+        if  distance_to_player < 100:
+            if self.position.x - player.position.x > 0:
+                self.state = 'moving left'
                 self.acceleration.x = -0.1
-            elif distance_to_player < 0:
+            elif self.position.x - player.position.x < 0:
+                self.state = 'moving right'
                 self.acceleration.x = 0.1
 
             # Attack the player if they are within the attack range and the attack is not on cooldown
-            if distance_to_player < self.attack_range and ((pygame.time.get_ticks() - self.last_attack) > self.attack_cooldown):
+            if distance_to_player < self.attack_range and pygame.time.get_ticks() - self.last_attack > self.attack_cooldown:
+                self.state = 'attack'
                 self.attack(player)
+        
         else:
             # Randomly choose a direction to move if the player is not within range
-            self.acceleration.x = random.choice([-0.01, 0, 0.01])
-
+            check = self.test(tiles,csv)
+            # add = random.choice([-0.01, 0, 0.01])
+            if self.state == 'moving left' and self.on_ground:
+                if check != 'LEFT':
+                    self.position.x -= 0.2
+                else:
+                    self.state = 'moving right'
+            elif self.state == 'moving right' and self.on_ground:
+                if check != 'RIGHT':
+                    self.position.x += 0.2
+                else: 
+                    self.state = 'moving left'
+    def test(self,tiles,csv):
+        map = csv
+        self.rect.bottom += 1
+        collisions = self.get_hits(tiles)
+        for tile in collisions:
+            y = int(tile.rect.y/32)
+            x = int(tile.rect.x/32)
+            # print(tile.rect.x)
+            if map[y][x-1] == '-1' and self.rect.x == tile.rect.x:
+                # print(map[y][x])
+                return 'LEFT'
+            elif map[y-1][x-1] != '-1' and self.rect.x == tile.rect.x:
+                # print(map[y][x])
+                return 'LEFT'
+            elif map[y][x+1] == '-1' and self.rect.x == tile.rect.x:
+                # print(map[y][x])
+                return 'RIGHT'
+            elif map[y-1][x+1] != '-1' and self.rect.x == tile.rect.x:
+                # print(map[y][x])
+                return 'RIGHT'
+        return 'NONE'
 
 class ShootingMonster(Character):
     def __init__(self, x=0, y=0):
@@ -308,6 +406,12 @@ class Boss(Character):
     def __init__(self, x=0, y=0):
         super().__init__(x, y, width=64, height=96, max_health=500,
                          attack_range=300, attack_cooldown=1000)
+        self.load_frames()
+        self.current_image = self.attacking_frames_right[0]
+        self.current_frame = 0
+        self.last_updated = 0
+        # self.image.fill((255, 0, 255))
+        self.rect = self.attacking_frames_left[0].get_rect()
         self.fireball = EnemyFireBall(1, 'down')
         self.homing_fireballs = []
 
@@ -316,10 +420,10 @@ class Boss(Character):
 
         # Chase the player if they are within attack_range units
         if -self.attack_range < distance_to_player < self.attack_range:
-            if distance_to_player > 0:
-                self.acceleration.x = -0.15
-            elif distance_to_player < 0:
-                self.acceleration.x = 0.15
+            # if distance_to_player > 0:
+            #     self.acceleration.x = -0.15
+            # elif distance_to_player < 0:
+            #     self.acceleration.x = 0.15
 
             # Attack the player if they are within the attack range and the attack is not on cooldown
             if abs(distance_to_player) < self.attack_range and pygame.time.get_ticks() - self.last_attack > self.attack_cooldown:
@@ -328,9 +432,9 @@ class Boss(Character):
                 self.shoot_homing_fireball(player)
                 if (random.randint(0, 1) < 0.02):
                     self.fire_rain(player)
-        else:
-            # Randomly choose a direction to move if the player is not within range
-            self.acceleration.x = random.choice([-0.01, 0, 0.01])
+        # else:
+        #     # Randomly choose a direction to move if the player is not within range
+        #     self.acceleration.y += random.choice([ 0, 3])
 
     def fire_rain(self, player):
         for _ in range(0, 3):
@@ -358,8 +462,9 @@ class Boss(Character):
         homing_fireball.shoot = True
         self.homing_fireballs.append(homing_fireball)
 
-    def update(self, dt, tiles, player):
+    def update(self, dt, tiles, player,csv):
         self.handle_ai(dt, player)
+        self.animate()
         self.horizontal_movement(dt)
         self.check_collisions_x(tiles)
         self.vertical_movement(dt)
@@ -374,29 +479,26 @@ class Boss(Character):
 
     def draw(self, display, x, y, tiles, player):
         # self.draw_health_bar(display)
-        display.blit(self.image, (self.rect.x + x, self.rect.y + y))
+        display.blit(self.current_image, (self.rect.x + x, self.rect.y + y))
         if self.fireball.shoot:
             self.fireball.draw(display, x, y, tiles, player)
         for homing_fireball in self.homing_fireballs:
             if homing_fireball.shoot:
                 homing_fireball.draw(display, x, y, tiles, player)
                 
-    def load_frames(self, scale):
-        my_spritesheet = Spritesheet('assets/boss/mage-2-122x110.png', scale)
-        sprite_width, sprite_height = 122, 110  # Set the dimensions of each sprite
-        num_columns, num_rows = 4, 2
-
-        self.frames = []
-
-        for row in range(num_rows):
-            for col in range(num_columns):
-                frame = my_spritesheet.get_sprite(
-                    col * sprite_width, row * sprite_height,
-                    sprite_width, sprite_height)
-                self.frames.append(frame)
-
-        self.current_frame = 0
-        self.last_updated = 0
-        self.current_image = self.frames[self.current_frame]
-
+    def load_frames(self):
+        my_spritesheet = Spritesheet('assets/boss/mage.png',1)
+        self.attacking_frames_right = [my_spritesheet.parse_sprite("Attack (1).png"),my_spritesheet.parse_sprite("Attack (2).png"),
+                                     my_spritesheet.parse_sprite("Attack (3).png"),my_spritesheet.parse_sprite("Attack (4).png"),
+                                     my_spritesheet.parse_sprite("Attack (5).png"),my_spritesheet.parse_sprite("Attack (6).png"),
+                                     my_spritesheet.parse_sprite("Attack (7).png"),my_spritesheet.parse_sprite("Attack (8).png")]
+        self.attacking_frames_left = []
+        for frame in self.attacking_frames_right:
+            self.attacking_frames_left.append( pygame.transform.flip(frame,True, False) )
+    def animate(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_updated > 30:
+            self.last_updated = now
+            self.current_frame = (self.current_frame + 1) % len(self.attacking_frames_right)
+            self.current_image = self.attacking_frames_right[self.current_frame]
 
